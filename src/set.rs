@@ -37,9 +37,6 @@ pub fn set_wallpaper(subc: &ArgMatches) {
     } else if let Some(path) = path {
         set_wall_using_path(path, mode, noxinerama);
     }
-    println!("query: {:?}", query);
-    println!("path: {:?}", path);
-    println!("mode: {:?}", mode);
 }
 
 fn set_wall_using_path(
@@ -69,10 +66,15 @@ pub async fn set_wall_using_query(
     noxinerama: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "Fetching wallpaper...".yellow());
-    let url = format!(
-        "https://www.wallpaperflare.com/search?wallpaper={}&page=1",
-        query
-    );
+
+    let url = if query.to_lowercase() == "trending" {
+        "https://www.wallpaperflare.com/".to_owned()
+    } else {
+        format!(
+            "https://www.wallpaperflare.com/search?wallpaper={}&page=1",
+            query
+        )
+    };
     // get html and parse it
     let html = reqwest::get(url).await?.text().await?;
     let fragmant = Html::parse_document(html.as_str());
