@@ -15,7 +15,7 @@ pub fn arguments<'t>() -> Command<'t> {
                         .takes_value(true),
                 )
                 .arg(
-                    arg!(-p --path "Path to the wallpaper.")
+                    arg!(-p --path "Path to the wallpaper. Use $HOME instead of ~/")
                         .required(false)
                         .takes_value(true),
                 )
