@@ -11,6 +11,7 @@ pub fn set_wallpaper(subc: &ArgMatches) {
     let path = subc.value_of("path");
     let mode = subc.value_of("mode");
     let noxinerama = subc.is_present("noxinerama");
+    let save = subc.value_of("save");
 
     if let (Some(_), Some(_)) = (query, path) {
         let err = format!(
@@ -28,7 +29,8 @@ pub fn set_wallpaper(subc: &ArgMatches) {
     }
 
     if let Some(query) = query {
-        let output = set_wall_using_query(query, mode, noxinerama);
+        let output =
+            set_wall_using_query(query, mode, noxinerama, save);
 
         match output {
             Ok(()) => (),
@@ -64,6 +66,7 @@ pub async fn set_wall_using_query(
     query: &str,
     mode: Option<&str>,
     noxinerama: bool,
+    save: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "Fetching wallpaper...".yellow());
 
@@ -112,23 +115,35 @@ pub async fn set_wall_using_query(
         .ok_or("Couldn't Parse HTML")?;
 
     // download the image
-    let filename = format!(
-        "/tmp/{}",
-        Alphanumeric.sample_string(&mut rand::thread_rng(), 6)
-    );
+    let filename = match save {
+        Some(name) => name.to_owned(),
+        None => {
+            let name = format!(
+                "/tmp/{}",
+                Alphanumeric
+                    .sample_string(&mut rand::thread_rng(), 6)
+            );
+            name
+        }
+    };
 
-    let filename = filename.as_str();
     let resp = reqwest::get(image_url).await?;
 
-    let mut file = std::fs::File::create(filename)?;
+    let mut file = std::fs::File::create(&filename)?;
     let mut content = std::io::Cursor::new(resp.bytes().await?);
     std::io::copy(&mut content, &mut file)?;
+
     println!("{}", "Fetched wallpaper!".blue());
+
     // set the wallpaper
 
-    set_wall_using_path(filename, mode, noxinerama);
+    set_wall_using_path(&filename[..], mode, noxinerama);
     println!("{}", "Wallpaper set successfully!".green());
-    std::fs::remove_file(filename)?;
+
+    // remove the wallpaper if user doesn't use --save
+    if save.is_none() {
+        std::fs::remove_file(filename)?;
+    }
 
     Ok(())
     // download the wallpaper and send to set_wall_using_path function, save it too maybe
