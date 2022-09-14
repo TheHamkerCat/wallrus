@@ -132,7 +132,7 @@ pub async fn set_wall_using_query(
 
     // download the image
     let filename =
-        save.map(|i| i.to_string()).unwrap_or_else(|| gen_tmpfile());
+        save.map(|i| i.to_string()).unwrap_or_else(gen_tmpfile);
 
     let resp = reqwest::get(image_url).await?;
 
