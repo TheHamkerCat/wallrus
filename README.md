@@ -21,7 +21,7 @@ Quick links:
 
 ## Demo
 
-https://user-images.githubusercontent.com/58004714/190113629-6b031082-2042-4b61-9461-d4d83829c236.mp4
+![demo](assets/demo.gif)
 
 ## Usage
 
