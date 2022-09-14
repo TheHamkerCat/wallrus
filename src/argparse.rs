@@ -35,6 +35,11 @@ pub fn arguments<'t>() -> Command<'t> {
                         .takes_value(true)
                         .required(false)
                 )
+                .arg(
+                    arg!(-c --cron "Add current wallpaper command to crontab to change wallpaper automatically. (Only works with --query)")
+                        .takes_value(true)
+                        .required(false)
+                )
                 ,
         )
 }

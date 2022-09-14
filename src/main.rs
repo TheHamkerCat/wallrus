@@ -6,7 +6,7 @@ fn main() {
 
     match args.subcommand() {
         Some(("set", subc)) => {
-            set::set_wallpaper(subc);
+            set::set_wallpaper(subc).unwrap();
         }
         _ => println!("Lost?? try --help"),
     }
