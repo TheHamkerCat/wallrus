@@ -1,4 +1,5 @@
 pub mod argparse;
+pub mod functions;
 mod set;
 
 fn main() {

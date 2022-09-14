@@ -1,9 +1,9 @@
 use clap::ArgMatches;
 use colored::Colorize;
-use rand::distributions::{Alphanumeric, DistString};
 use rand::seq::SliceRandom;
 use scraper::{Html, Selector};
 
+use crate::functions::{gen_tmpfile, program_exists};
 use std::io::Write;
 use std::process::Command as Shell;
 
@@ -18,12 +18,7 @@ pub fn set_wallpaper(
     let cron = subc.value_of("cron");
 
     // Check if feh is installed in system
-    if !Shell::new("which")
-        .arg("feh")
-        .stdout(std::process::Stdio::null())
-        .status()?
-        .success()
-    {
+    if !program_exists("feh") {
         panic!("{}", "feh is not installed in system [https://archlinux.org/packages/extra/x86_64/feh/]".red())
     }
 
@@ -144,14 +139,7 @@ pub async fn set_wall_using_query(
     // download the image
     let filename = match save {
         Some(name) => name.to_owned(),
-        None => {
-            let name = format!(
-                "/tmp/{}",
-                Alphanumeric
-                    .sample_string(&mut rand::thread_rng(), 6)
-            );
-            name
-        }
+        None => gen_tmpfile(),
     };
 
     let resp = reqwest::get(image_url).await?;
@@ -163,7 +151,6 @@ pub async fn set_wall_using_query(
     println!("{}", "Fetched wallpaper!".blue());
 
     // set the wallpaper
-
     set_wall_using_path(&filename[..], mode, noxinerama);
     println!("{}", "Wallpaper set successfully!".green());
 
@@ -177,12 +164,7 @@ pub async fn set_wall_using_query(
 
         // Check if cron is installed
 
-        if !Shell::new("which")
-            .arg("crontab")
-            .stdout(std::process::Stdio::null())
-            .status()?
-            .success()
-        {
+        if !program_exists("crontab") {
             panic!("{}", "crontab is not installed in system [https://archlinux.org/packages/extra/x86_64/feh/]".red())
         }
 
@@ -248,15 +230,13 @@ pub async fn set_wall_using_query(
             + current_cron_filtered.as_str()
             + "\n ";
 
-        let tmpfile = format!(
-            "/tmp/{}",
-            Alphanumeric.sample_string(&mut rand::thread_rng(), 6)
-        );
+        let tmpfile = gen_tmpfile();
         let mut file = std::fs::File::create(&tmpfile)?;
         file.write_all(final_cron.as_bytes())?;
 
+        // calls `$ crontab filename` which replaces current
+        // cronfile to the one we modified
         Shell::new("crontab").arg(&tmpfile).status()?;
     }
     Ok(())
-    // download the wallpaper and send to set_wall_using_path function, save it too maybe
 }
