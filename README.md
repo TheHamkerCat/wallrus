@@ -27,7 +27,7 @@ https://user-images.githubusercontent.com/58004714/190113629-6b031082-2042-4b61-
 
 ```console
 $ wallrus --help
-wallrus 1.0.1
+wallrus x.x.x
 TheHamkerCat <TheHamkerCat@gmail.com>
 A simple wallpaper manager for X11
 

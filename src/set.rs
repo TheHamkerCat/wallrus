@@ -40,14 +40,8 @@ pub fn set_wallpaper(
     }
 
     if let Some(query) = query {
-        let output = set_wall_using_query(
-            query, mode, noxinerama, save, cron,
-        );
-
-        match output {
-            Ok(()) => (),
-            Err(e) => panic!("{}", e),
-        }
+        set_wall_using_query(query, mode, noxinerama, save, cron)
+            .unwrap();
     } else if let Some(path) = path {
         set_wall_using_path(path, mode, noxinerama);
     }
@@ -137,10 +131,8 @@ pub async fn set_wall_using_query(
         .ok_or("Couldn't Parse HTML")?;
 
     // download the image
-    let filename = match save {
-        Some(name) => name.to_owned(),
-        None => gen_tmpfile(),
-    };
+    let filename =
+        save.map(|i| i.to_string()).unwrap_or_else(|| gen_tmpfile());
 
     let resp = reqwest::get(image_url).await?;
 
