@@ -97,6 +97,5 @@ $ wallrus set --query=avengers --cron="0 * * * *"
 ```console
 $ git clone https://github.com/TheHamkerCat/wallrus
 $ cd wallrus
-$ chmod +x install.sh
 $ bash ./install.sh
 ```
