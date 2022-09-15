@@ -1,15 +1,25 @@
+use colored::Colorize;
 use rand::distributions::{Alphanumeric, DistString};
 use std::process::Command;
 
 pub fn program_exists(program: &str) -> bool {
-    let status = Command::new("which")
+    Command::new("which")
         .arg(&program)
         .stdout(std::process::Stdio::null())
-        .status();
+        .stderr(std::process::Stdio::null())
+        .status()
+        .unwrap()
+        .success()
+}
 
-    match status {
-        Ok(exit_status) => exit_status.success(),
-        Err(e) => panic!("{}", e),
+pub fn ensure_program(program: &str) {
+    if !program_exists(program) {
+        eprintln!(
+            "{} {}",
+            program.green(),
+            "is not installed, install it and try again!".red()
+        );
+        std::process::exit(1)
     }
 }
 

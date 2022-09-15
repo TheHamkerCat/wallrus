@@ -1,30 +1,26 @@
 use clap::ArgMatches;
 use colored::Colorize;
+use std::path::Path;
 
-use crate::functions::{get_home_dir, program_exists};
+use crate::functions::{ensure_program, get_home_dir};
 
 pub fn get_wallpaper(subc: &ArgMatches) {
     let path = subc.value_of("file").unwrap();
+    let fehconf_path = Path::new(&get_home_dir()).join(".fehbg");
 
-    if !program_exists("feh") {
-        eprintln!(
+    ensure_program("feh");
+
+    if !fehconf_path.exists() {
+        return eprintln!(
             "{}",
-            "feh is not installed, install it and try again!".red()
+            "Couldn't find feh config file (.fehbg) in home directory".red()
         );
     }
 
-    let fehconf =
-        match std::fs::read_to_string(get_home_dir() + "/.fehbg") {
-            Ok(fehconf) => fehconf,
-            Err(_) => {
-                eprintln!(
-                    "{}",
-                    "Couln't find feh config file.".red()
-                );
-                return;
-            }
-        };
-    let wallpaper_file = fehconf
+    let fehconf_content =
+        std::fs::read_to_string(fehconf_path).unwrap();
+
+    let wallpaper_file = fehconf_content
         .split('\n')
         .nth(1)
         .unwrap()
@@ -33,12 +29,11 @@ pub fn get_wallpaper(subc: &ArgMatches) {
         .unwrap()
         .replace('\'', "");
 
-    if !std::path::Path::new(&wallpaper_file).exists() {
-        println!(
+    if !Path::new(&wallpaper_file).exists() {
+        return eprintln!(
             "{}",
             "Your current wallpaper file seems missing.".red()
         );
-        return;
     }
 
     match std::fs::copy(wallpaper_file, path) {

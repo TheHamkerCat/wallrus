@@ -3,7 +3,7 @@ use colored::Colorize;
 use rand::seq::SliceRandom;
 use scraper::{Html, Selector};
 
-use crate::functions::{gen_tmpfile, program_exists};
+use crate::functions::{ensure_program, gen_tmpfile};
 use std::io::Write;
 use std::process::Command as Shell;
 
@@ -17,23 +17,20 @@ pub fn set_wallpaper(
     let save = subc.value_of("save");
     let cron = subc.value_of("cron");
 
-    // Check if feh is installed in system
-    if !program_exists("feh") {
-        panic!("{}", "feh is not installed in system [https://archlinux.org/packages/extra/x86_64/feh/]".red())
-    }
+    ensure_program("feh");
 
-    if let (Some(_), Some(_)) = (query, path) {
+    if query.is_some() & path.is_some() {
         let err = format!(
-            "You can't use both {} and {} at the same time! Either supply a UNIX path or give me a query to search for on the internet!",
+            "You can't use both {} and {} at the same time! Supply a path or give me a query to search for on the internet!",
             "--query".green(), "--path".green()
         );
         eprintln!("{}", err.red());
         return Ok(());
-    } else if let (None, None) = (query, path) {
+    } else if query.is_none() & path.is_none() {
         let err = format!(
             "You need to supply either {} or a {} to search for on the internet!",
-            "--query".green(),
-            "--path".green()
+            "--path".green(),
+            "--query".green()
         );
         eprintln!("{}", err.red());
         return Ok(());
@@ -42,9 +39,11 @@ pub fn set_wallpaper(
     if let Some(query) = query {
         set_wall_using_query(query, mode, noxinerama, save, cron)
             .unwrap();
-    } else if let Some(path) = path {
-        set_wall_using_path(path, mode, noxinerama);
+    } else {
+        // if query is None, path will be Some
+        set_wall_using_path(path.unwrap(), mode, noxinerama);
     }
+
     Ok(())
 }
 
@@ -57,14 +56,9 @@ fn set_wall_using_path(
 
     args.push(format!("--bg-{}", mode.unwrap()));
     args.push(path.to_owned());
+    noxinerama.then(|| args.push("--no-xinerama".to_owned()));
 
-    if noxinerama {
-        args.push("--no-xinerama".to_owned());
-    }
-
-    let status = Shell::new("feh").args(args).status();
-
-    match status {
+    match Shell::new("feh").args(args).status() {
         Ok(exit_status) => {
             if !exit_status.success() {
                 panic!(
@@ -74,6 +68,7 @@ fn set_wall_using_path(
         }
         Err(e) => panic!("{}", e),
     }
+    println!("{}", "Wallpaper set successfully!".green());
 }
 
 #[tokio::main]
@@ -144,16 +139,10 @@ pub async fn set_wall_using_query(
 
     // set the wallpaper
     set_wall_using_path(&filename[..], mode, noxinerama);
-    println!("{}", "Wallpaper set successfully!".green());
 
     if let Some(cron_expression) = cron {
         let exp_len = cron_expression.split_whitespace().count();
-
-        // Check if cron is installed
-
-        if !program_exists("crontab") {
-            panic!("{}", "crontab is not installed in system [https://archlinux.org/packages/extra/x86_64/feh/]".red())
-        }
+        ensure_program("crontab");
 
         // Check if cron expression is valid
         if !vec![5, 6].contains(&exp_len) {
