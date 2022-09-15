@@ -41,5 +41,13 @@ pub fn arguments<'t>() -> Command<'t> {
                         .required(false)
                 )
                 ,
+        ).subcommand(
+            Command::new("get")
+                .about("Get currenty set wallpaper and save it in a file.")
+                .arg(
+                    arg!(-f --file "File name to save the wallpaper in.")
+                        .takes_value(true)
+                        .required(true)
+                )
         )
 }

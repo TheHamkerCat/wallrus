@@ -17,7 +17,7 @@ Quick links:
 - [x] Automatically change wallpapers using [`cron`](https://crontab.guru/) expressions (wallpaper slideshow).
 - [x] Supports multiple modes [center, fill, scale, tile]
 - [x] Saving fetched wallpapers to a file.
-- [ ] Aquiring currently applied wallpaper and saving it to a file. (if set by feh)
+- [x] Aquiring currently applied wallpaper and saving it to a file.
 
 ## Demo
 
@@ -90,6 +90,12 @@ $ wallrus set --query=batman --save=a.png
 
 ```console
 $ wallrus set --query=avengers --cron="0 * * * *"
+```
+
+### Get current wallpaper and save it to a file
+
+```console
+$ wallrus get --file=wall.png
 ```
 
 ## Installation

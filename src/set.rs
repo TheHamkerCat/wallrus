@@ -146,11 +146,6 @@ pub async fn set_wall_using_query(
     set_wall_using_path(&filename[..], mode, noxinerama);
     println!("{}", "Wallpaper set successfully!".green());
 
-    // remove the wallpaper if user doesn't use --save
-    if save.is_none() {
-        std::fs::remove_file(filename)?;
-    }
-
     if let Some(cron_expression) = cron {
         let exp_len = cron_expression.split_whitespace().count();
 

@@ -19,3 +19,7 @@ pub fn gen_tmpfile() -> String {
         Alphanumeric.sample_string(&mut rand::thread_rng(), 6)
     )
 }
+
+pub fn get_home_dir() -> std::string::String {
+    std::env::var("HOME").unwrap()
+}
