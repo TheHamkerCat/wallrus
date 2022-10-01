@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 
 cargo build --release
-mv target/release/wallrus .
+chmod +x target/release/wallrus
+mv target/release/wallrus $HOME/.cargo/bin/
 
 if [ -e /usr/bin/feh ]
 then
