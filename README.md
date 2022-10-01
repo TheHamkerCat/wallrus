@@ -105,3 +105,4 @@ $ git clone https://github.com/TheHamkerCat/wallrus
 $ cd wallrus
 $ bash ./install.sh
 ```
+make sure `.cargo/bin/` is in `$PATH`
